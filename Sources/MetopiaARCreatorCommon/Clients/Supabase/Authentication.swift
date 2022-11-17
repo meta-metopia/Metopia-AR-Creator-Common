@@ -4,7 +4,13 @@ import Supabase
 public class SupabaseAuthenticationClient: NetworkRequestAuthProtocol {
     public var url: URL
 
-    public var user: User?
+    public var user: User? {
+        let user = client.auth.session?.user
+        if let user = user {
+            return User(id: user.id)
+        }
+        return nil
+    }
 
     public var client: Supabase.SupabaseClient
 
@@ -26,5 +32,7 @@ public class SupabaseAuthenticationClient: NetworkRequestAuthProtocol {
         let _ = try await client.auth.signUp(email: email, password: password)
     }
 
-    public func refresh() async throws {}
+    public func refresh() async throws {
+        try await client.auth.refreshCurrentSessionIfNeeded()
+    }
 }
