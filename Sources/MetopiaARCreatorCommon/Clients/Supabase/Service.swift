@@ -32,18 +32,18 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
         try await self.client.database
             .from(table: .worldMap)
             .update(values: worldMap)
-            .match(query: ["version": oldVersion, "id": worldMap.id!])
+            .match(query: ["version": oldVersion, "id": worldMap.id])
             .execute()
     }
     
     public func deleteWorldMap(worldMap: WorldMap) async throws {
-        try await self.client.database.from(table: .worldMap).delete().match(query: ["id": String(worldMap.id!)]).execute()
+        try await self.client.database.from(table: .worldMap).delete().match(query: ["id": String(worldMap.id)]).execute()
     }
     
     public func fetchCategories(for worldMap: WorldMap, with user: User) async throws -> [Category] {
         let result = try await self.client.database.from(table: .category)
             .select(columns: "*, model(*)")
-            .eq(column: "wid", value: worldMap.id!)
+            .eq(column: "wid", value: worldMap.id)
             .eq(column: "uid", value: user.id.uuidString)
             .execute()
         

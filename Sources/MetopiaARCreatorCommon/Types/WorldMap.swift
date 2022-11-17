@@ -51,6 +51,18 @@ public struct WorldMapCreateDto: WorldMapProtocol {
 }
 
 public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
+    public func downloadSource(baseURL: URL) -> URL? {
+        guard let filename = filename else {
+            return nil
+        }
+        
+        if #available(iOS 16.0, *) {
+            return baseURL.appending(path: filename)
+        } else {
+            return baseURL.appendingPathComponent(filename)
+        }
+    }
+    
     /**
      Map directory
      */
@@ -61,9 +73,9 @@ public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
         return dir
     }
 
-    public var downloadPath: URL {
+    public var downloadDestination: URL? {
         var modelDir = mapDirectory
-        modelDir.appendPathComponent("\(id!)_version_\(version).worldmap")
+        modelDir.appendPathComponent("\(id)_version_\(version).worldmap")
         return modelDir
     }
 
@@ -71,7 +83,7 @@ public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
         lhs.id == rhs.id
     }
 
-    public var id: Int?
+    public var id: Int
     public var uid: UUID
     public var name: String
     public var filename: String?
@@ -85,7 +97,7 @@ public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
     public var usedModels: [Int]?
     public var preferCloudAnchor: Bool
 
-    public init(id: Int? = nil, uid: UUID, name: String, filename: String? = nil, latitude: Double? = nil, longitude: Double? = nil, version: Int, cloudAnchors: [CloudARAnchor]? = nil, usedModels: [Int]? = nil, preferCloudAnchor: Bool) {
+    public init(id: Int, uid: UUID, name: String, filename: String? = nil, latitude: Double? = nil, longitude: Double? = nil, version: Int, cloudAnchors: [CloudARAnchor]? = nil, usedModels: [Int]? = nil, preferCloudAnchor: Bool) {
         self.id = id
         self.uid = uid
         self.name = name

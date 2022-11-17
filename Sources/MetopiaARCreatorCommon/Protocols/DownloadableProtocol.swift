@@ -11,5 +11,10 @@ public protocol DownloadableProtocol {
     /**
      Download path for the object
      */
-    var downloadPath: URL { get }
+    var downloadDestination: URL? { get }
+    
+    /**
+     Remote file path
+     */
+    func downloadSource(baseURL: URL) -> URL?
 }

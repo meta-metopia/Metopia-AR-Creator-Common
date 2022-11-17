@@ -11,7 +11,7 @@ import Foundation
  */
 public enum ARObjectType: String, Codable, CaseIterable, Identifiable {
     public var id: Self { self }
-
+    
     /**
      Model will show a  list of ``ARMenu``
      */
@@ -32,8 +32,6 @@ public enum ARObjectType: String, Codable, CaseIterable, Identifiable {
 
 protocol ModelProtocol: Codable {
     var name: String { get set }
-    var thumbnail: String? { get set }
-    var model: String? { get set }
     var objectType: ARObjectType { get set }
     var menus: [ARMenu]? { get set }
     var content: String? { get set }
@@ -44,12 +42,12 @@ public struct ModelCreateDto: ModelProtocol {
     public var uid: UUID
     public var cid: Int
     public var thumbnail: String?
-    public var model: String?
+    public var model: String
     public var menus: [ARMenu]?
     public var content: String?
     public var objectType: ARObjectType
-
-    public init(name: String, uid: UUID, cid: Int, thumbnail: String?, model: String?, menus: [ARMenu]?, content: String?, objectType: ARObjectType) {
+    
+    public init(name: String, uid: UUID, cid: Int, thumbnail: String?, model: String, menus: [ARMenu]?, content: String?, objectType: ARObjectType) {
         self.name = name
         self.uid = uid
         self.cid = cid
@@ -63,17 +61,17 @@ public struct ModelCreateDto: ModelProtocol {
 
 public struct ModelUpdateDto: ModelProtocol {
     public var name: String
-
+    
     public var thumbnail: String?
-
+    
     public var model: String?
-
+    
     public var objectType: ARObjectType
-
+    
     public var menus: [ARMenu]?
-
+    
     public var content: String?
-
+    
     public init(name: String, thumbnail: String? = nil, model: String? = nil, objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil) {
         self.name = name
         self.thumbnail = thumbnail
@@ -88,7 +86,7 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
     public static func == (lhs: Model, rhs: Model) -> Bool {
         lhs.name == rhs.name
     }
-
+    
     public var id: Int
     public var name: String
     /**
@@ -102,11 +100,11 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
     /**
      Thumbnail path
      */
-    public var thumbnail: String?
+    public var thumbnail: String
     /**
      Model path
      */
-    public var model: String?
+    public var model: String
     /**
      Version of the model
      */
@@ -119,12 +117,12 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
      ARMenus if the ``actionType`` is set to ``ActionType.menus``
      */
     public var menus: [ARMenu]?
-
+    
     /**
      Model's content if ``actionType`` is not set to ``actionType.none`` or ``ActionType.menus``
      */
     public var content: String?
-
+    
     /**
      Create a model
      - parameter id: Model ID
@@ -137,7 +135,7 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
      - parameter actionType: Model onclick action type
      - parameter content: Model's content
      */
-    public init(id: Int, name: String, uid: UUID, cid: Int, thumbnail: String? = nil, model: String? = nil, version: Int, objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil) {
+    public init(id: Int, name: String, uid: UUID, cid: Int, thumbnail: String, model: String, version: Int, objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil) {
         self.id = id
         self.name = name
         self.uid = uid
@@ -149,7 +147,7 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
         self.menus = menus
         self.content = content
     }
-
+    
     /**
      Model directory
      */
@@ -159,13 +157,21 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
         dir.appendPathComponent("models")
         return dir
     }
-
+    
     /**
      Local model path
      */
-    public var downloadPath: URL {
+    public var downloadDestination: URL? {
         var modelDir = modelDirectory
         modelDir.appendPathComponent("\(id)_version_\(version).usdz")
         return modelDir
+    }
+    
+    public func downloadSource(baseURL: URL) -> URL? {
+        if #available(iOS 16.0, *) {
+            return baseURL.appending(path: model)
+        } else {
+            return baseURL.appendingPathComponent(model)
+        }
     }
 }
