@@ -26,13 +26,10 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
     }
     
     public func editWorldMap(worldMap: WorldMap) async throws {
-        let oldVersion = worldMap.version
-        var worldMap = worldMap
-        worldMap.version = oldVersion + 1
         try await self.client.database
             .from(table: .worldMap)
             .update(values: worldMap)
-            .match(query: ["version": oldVersion, "id": worldMap.id])
+            .match(query: ["id": worldMap.id])
             .execute()
     }
     
@@ -77,13 +74,10 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
     }
     
     public func editModel(model: Model) async throws {
-        let oldVersion = model.version
-        var model = model
-        model.version = oldVersion + 1
         try await self.client.database
             .from(table: .model)
             .update(values: model)
-            .match(query: ["version": oldVersion, "id": model.id])
+            .match(query: ["id": model.id])
             .execute()
     }
     
