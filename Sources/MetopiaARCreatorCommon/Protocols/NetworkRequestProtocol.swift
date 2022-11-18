@@ -60,7 +60,7 @@ public protocol NetworkRequestStorageProtocol: NetworkRequestProtocol {
      Create a new world map
      - parameter worldMap: New WorldMap
      */
-    func createWorldMap(worldMap: WorldMap) async throws
+    func createWorldMap(worldMap: WorldMapCreateDto) async throws
 
     /**
      Edit world map by given world map

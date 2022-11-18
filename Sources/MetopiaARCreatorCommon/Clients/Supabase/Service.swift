@@ -21,7 +21,7 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
         return worldMaps
     }
     
-    public func createWorldMap(worldMap: WorldMap) async throws {
+    public func createWorldMap(worldMap: WorldMapCreateDto) async throws {
         try await self.client.database.from(table: .worldMap).insert(values: worldMap).execute()
     }
     
