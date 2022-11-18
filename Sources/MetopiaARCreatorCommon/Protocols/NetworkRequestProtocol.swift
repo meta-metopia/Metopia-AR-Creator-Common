@@ -86,7 +86,7 @@ public protocol NetworkRequestStorageProtocol: NetworkRequestProtocol {
      Edit given category
      - parameter category: Given category
      */
-    func editCategory(category: CategoryUpdateDto) async throws -> Category
+    func editCategory(category: CategoryUpdateDto) async throws -> CategoryUpdateDto
 
     /**
      Delete the given category

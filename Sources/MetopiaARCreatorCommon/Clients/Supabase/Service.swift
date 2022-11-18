@@ -51,12 +51,12 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
         return categories
     }
     
-    public func editCategory(category: CategoryUpdateDto) async throws -> Category {
+    public func editCategory(category: CategoryUpdateDto) async throws -> CategoryUpdateDto {
         let result = try await self.client.database
             .from(table: .category)
             .update(values: category)
             .execute()
-        return try result.decoded(to: [Category].self).first!
+        return try result.decoded(to: [CategoryUpdateDto].self).first!
     }
     
     public func deleteCategory(category: Category) async throws {
