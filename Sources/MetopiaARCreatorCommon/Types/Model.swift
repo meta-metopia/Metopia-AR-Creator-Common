@@ -6,6 +6,20 @@
 //
 import Foundation
 
+public enum ModelDownloadType: DownloadTypeProtocol {
+    case thumbnail
+    case model
+    
+    public var value: String {
+        switch(self) {
+        case .thumbnail:
+            return "thumbanail"
+        case .model:
+            return "model"
+        }
+    }
+}
+
 /**
  Action type defines the action that the ar model can operate.
  */
@@ -159,19 +173,40 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
     }
     
     /**
-     Local model path
+     Model directory
      */
-    public var downloadDestination: URL? {
-        var modelDir = modelDirectory
-        modelDir.appendPathComponent("\(id)_version_\(version).usdz")
-        return modelDir
+    public var thumbnailDirectory: URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        var dir = paths[0]
+        dir.appendPathComponent("thumbnail")
+        return dir
     }
     
-    public func downloadSource(baseURL: URL) -> URL? {
-        if #available(iOS 16.0, *) {
-            return baseURL.appending(path: model)
-        } else {
-            return baseURL.appendingPathComponent(model)
+    public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
+        switch (type.value) {
+        case ModelDownloadType.model.value:
+            var modelDir = modelDirectory
+            modelDir.appendPathComponent("\(id)_version_\(version).usdz")
+            return modelDir
+        case ModelDownloadType.thumbnail.value:
+            var thumbnail = thumbnailDirectory
+            let thumbnailExt = URL(string: self.thumbnail)!.pathExtension
+            thumbnail.appendPathComponent("\(id)_version_\(version).\(thumbnailExt)")
+            return thumbnail
+        default:
+            return nil
+        }
+    }
+    
+    
+    public func downloadSource(type: DownloadTypeProtocol) -> URL? {
+        switch(type.value) {
+        case ModelDownloadType.model.value:
+            return URL(string: model)
+        case ModelDownloadType.thumbnail.value:
+            return URL(string: thumbnail)
+        default:
+            return nil
         }
     }
 }

@@ -15,27 +15,27 @@ public class SupabaseDownloadUploader {
         self.endpoint = endpoint
     }
     
-    public func download(file: DownloadableProtocol) async throws -> Data? {
-        guard let downloadSource = file.downloadSource(baseURL: endpoint) else {
+    public func download(file: DownloadableProtocol, type: DownloadTypeProtocol) async throws -> Data? {
+        guard let downloadSource = file.downloadSource(type: type) else {
             return nil
         }
-        
-        guard let downloadDestination = file.downloadDestination else {
+
+        guard let downloadDestination = file.downloadDestination(type: type) else {
             return nil
         }
-        
+
         let downloadFolder = downloadDestination.deletingLastPathComponent()
-        
+
         if !FileManager.default.fileExists(atPath: downloadFolder.path) {
             try! FileManager.default.createDirectory(atPath: downloadFolder.path, withIntermediateDirectories: true)
         }
-        
+
         if !FileManager.default.fileExists(atPath: downloadDestination.path) {
             // download from cloud
             let destination: DownloadRequest.Destination = { _, _ in
                 return (downloadDestination, [.removePreviousFile])
             }
-        
+
             let task = AF.download(downloadSource, method: .get, to: destination).serializingDownloadedFileURL()
             let _ = try await task.value
         }
