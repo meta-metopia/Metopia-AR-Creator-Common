@@ -50,7 +50,7 @@ public struct WorldMapCreateDto: WorldMapProtocol {
     }
 }
 
-public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
+public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol, UploadableProtocol {
     public func downloadSource(type: DownloadTypeProtocol) -> URL? {
         guard let filename = file else {
             return nil
@@ -103,5 +103,13 @@ public struct WorldMap: Identifiable, WorldMapProtocol, DownloadableProtocol {
         var modelDir = mapDirectory
         modelDir.appendPathComponent("\(id)_version_\(version).worldmap")
         return modelDir
+    }
+    
+    public func uploadDestination(type: UploadTypeProtocol) -> URL? {
+        return URL(string: "uploads/\(uid)/worldmap/\(id).worldmap")
+    }
+    
+    public func uploadFile(type: UploadTypeProtocol, data: Data) -> File? {
+        return File(name: name, data: data, fileName: "\(id).worldmap", contentType: nil)
     }
 }

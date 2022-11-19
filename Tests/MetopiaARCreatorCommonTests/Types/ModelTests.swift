@@ -15,6 +15,18 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(downloadDest!.lastPathComponent, "0_version_1.usdz")
     }
     
+    func testUploadPath() throws {
+        let model = Model(id: 0, name: "a", uid: UUID(), cid: 1, thumbnail: "abc.png", model: "b.usdz", version: 1, objectType: .link)
+        let dest = model.uploadDestination(type: ModelUploadType.model)
+        XCTAssertEqual(dest!.lastPathComponent, "0.usdz")
+    }
+    
+    func testUploadPath2() throws {
+        let model = Model(id: 0, name: "a", uid: UUID(), cid: 1, thumbnail: "abc.png", model: "b.usdz", version: 1, objectType: .link)
+        let dest = model.uploadDestination(type: ModelUploadType.thumbnail)
+        XCTAssertEqual(dest!.lastPathComponent, "0.png")
+    }
+    
     func testRemotePath() throws {
         let model = Model(id: 0, name: "a", uid: UUID(), cid: 1, thumbnail: "abc.png", model: "b.usdz", version: 1, objectType: .link)
         let url = model.downloadSource(type: ModelDownloadType.model)!

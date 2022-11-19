@@ -10,9 +10,11 @@ import Alamofire
 
 public class SupabaseDownloadUploader {
     let endpoint: URL
+    let key: String
     
-    public init(endpoint: URL) {
+    public init(endpoint: URL, key: String) {
         self.endpoint = endpoint
+        self.key = key
     }
     
     public func download(file: DownloadableProtocol, type: DownloadTypeProtocol) async throws -> Data? {
@@ -40,5 +42,13 @@ public class SupabaseDownloadUploader {
             let _ = try await task.value
         }
         return try Data(contentsOf: downloadDestination)
+    }
+    
+    public func upload(file: UploadableProtocol, type: UploadTypeProtocol, data: Data, upsert: Bool = false) async throws -> URL {
+        let storageClient = SupabaseStorageClient(url: endpoint, key: key)
+     
+        try await storageClient.upsertObject(at: file.uploadDestination(type: type)!.absoluteString, file: file.uploadFile(type: type, data: data)!, isUpdate: upsert)
+        
+        return file.uploadDestination(type: type)!
     }
 }

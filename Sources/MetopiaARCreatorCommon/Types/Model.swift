@@ -6,6 +6,20 @@
 //
 import Foundation
 
+public enum ModelUploadType: UploadTypeProtocol {
+    case thumbnail
+    case model
+    
+    public var value: String {
+        switch(self) {
+        case .thumbnail:
+            return "thumbanail"
+        case .model:
+            return "model"
+        }
+    }
+}
+
 public enum ModelDownloadType: DownloadTypeProtocol {
     case thumbnail
     case model
@@ -96,7 +110,7 @@ public struct ModelUpdateDto: ModelProtocol {
     }
 }
 
-public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, DownloadableProtocol {
+public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, DownloadableProtocol, UploadableProtocol {
     public static func == (lhs: Model, rhs: Model) -> Bool {
         lhs.name == rhs.name
     }
@@ -205,6 +219,29 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
             return URL(string: model)
         case ModelDownloadType.thumbnail.value:
             return URL(string: thumbnail)
+        default:
+            return nil
+        }
+    }
+    
+    public func uploadDestination(type: UploadTypeProtocol) -> URL? {
+        let baseURL = URL(string: "uploads/\(uid)")
+        switch (type.value) {
+        case ModelUploadType.model.value:
+            return baseURL?.appendingPathComponent("model/\(self.id).usdz")
+        case ModelUploadType.thumbnail.value:
+            return baseURL?.appendingPathComponent("thumbnail/\(self.id).png")
+        default:
+            return nil
+        }
+    }
+    
+    public func uploadFile(type: UploadTypeProtocol, data: Data) -> File? {
+        switch (type.value) {
+        case ModelUploadType.model.value:
+            return File(name: name, data: data, fileName: "\(id).usdz", contentType: nil)
+        case ModelUploadType.thumbnail.value:
+            return File(name: name, data: data, fileName: "\(id).png", contentType: nil)
         default:
             return nil
         }
