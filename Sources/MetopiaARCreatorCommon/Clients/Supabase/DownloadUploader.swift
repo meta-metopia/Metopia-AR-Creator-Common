@@ -44,10 +44,10 @@ public class SupabaseDownloadUploader {
         return try Data(contentsOf: downloadDestination)
     }
     
-    public func upload(file: UploadableProtocol, type: UploadTypeProtocol, data: Data, upsert: Bool = false) async throws -> URL {
+    public func upload(file: UploadableProtocol, type: UploadTypeProtocol, data: Data, isUpdate: Bool = false) async throws -> URL {
         let storageClient = SupabaseStorageClient(url: endpoint, key: key)
      
-        try await storageClient.upsertObject(at: file.uploadDestination(type: type)!.absoluteString, file: file.uploadFile(type: type, data: data)!, isUpdate: upsert)
+        try await storageClient.upsertObject(at: file.uploadDestination(type: type)!.absoluteString, file: file.uploadFile(type: type, data: data)!, isUpdate: isUpdate)
         
         return file.uploadDestination(type: type)!
     }
