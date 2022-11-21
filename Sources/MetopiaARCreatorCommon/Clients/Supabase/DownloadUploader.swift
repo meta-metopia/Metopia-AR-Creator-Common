@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-public class SupabaseDownloadUploader {
+public class SupabaseDownloadUploader: DownloadUploaderProtocol {
     let endpoint: URL
     let key: String
     
@@ -46,9 +46,9 @@ public class SupabaseDownloadUploader {
     
     public func upload(file: UploadableProtocol, type: UploadTypeProtocol, data: Data, isUpdate: Bool = false) async throws -> URL {
         let storageClient = SupabaseStorageClient(url: endpoint, key: key)
-     
+
         try await storageClient.upsertObject(at: file.uploadDestination(type: type)!.absoluteString, file: file.uploadFile(type: type, data: data)!, isUpdate: isUpdate)
-        
+
         return file.uploadDestination(type: type)!
     }
 }

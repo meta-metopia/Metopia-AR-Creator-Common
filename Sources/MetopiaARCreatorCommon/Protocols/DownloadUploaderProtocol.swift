@@ -7,8 +7,8 @@
 
 import Foundation
 
-public protocol DownloadUploader {
-    func download(file: DownloadableProtocol) async throws -> Data
+public protocol DownloadUploaderProtocol {
+    func download(file: DownloadableProtocol, type: DownloadTypeProtocol) async throws -> Data?
     
-    func upload(file: UploadableProtocol) async throws
+    func upload(file: UploadableProtocol, type: UploadTypeProtocol, data: Data, isUpdate: Bool) async throws -> URL
 }

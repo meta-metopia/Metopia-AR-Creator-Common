@@ -8,6 +8,8 @@ public class SupabaseClient: ClientProtocol {
     public var storageClient: NetworkRequestStorageProtocol
 
     public var serviceClient: NetworkRequestServiceProtocol
+    
+    public var downloaderClient: DownloadUploaderProtocol
 
     public required init(url: URL, key: String, authenticationClient: NetworkRequestAuthProtocol? = nil, storageClient: NetworkRequestStorageProtocol? = nil, serviceClient: NetworkRequestServiceProtocol? = nil) {
         self.url = url
@@ -32,5 +34,7 @@ public class SupabaseClient: ClientProtocol {
         } else {
             self.serviceClient = SupabaseServiceClient(url: url, key: key)
         }
+        
+        self.downloaderClient = SupabaseDownloadUploader(endpoint: url, key: key)
     }
 }

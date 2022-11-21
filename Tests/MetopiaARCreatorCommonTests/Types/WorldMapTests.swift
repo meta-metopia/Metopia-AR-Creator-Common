@@ -27,4 +27,11 @@ final class WorldMapTests: XCTestCase {
         let remotePath = worldMap.downloadSource(type: ModelDownloadType.model)!
         XCTAssertEqual(remotePath.absoluteString, "a/b.worldmap")
     }
+    
+    func testLoad() async throws {
+        let worldMap = WorldMap(id:1, uid: UUID(), name: "test", file: nil, version: 1, preferCloudAnchor: false)
+        let loadedMap = try await worldMap.load(service: SupabaseClient(url: URL(string: "https://google.com")!, key: "abcde"))
+        XCTAssertEqual(loadedMap.map, nil)
+        XCTAssertEqual(loadedMap.name, "test")
+    }
 }

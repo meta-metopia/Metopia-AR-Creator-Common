@@ -49,6 +49,11 @@ public protocol NetworkRequestStorageProtocol: NetworkRequestProtocol {
 
 
  public protocol NetworkRequestServiceProtocol: NetworkRequestProtocol{
+     /**
+      Fetch world map by id
+      */
+    func fetchWorldMapBy(id: Int) async throws -> WorldMap
+     
     /**
      Fetch list of world maps by user
      - parameter user: Signed in user session

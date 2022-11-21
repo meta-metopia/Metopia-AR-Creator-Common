@@ -13,4 +13,6 @@ public protocol ClientProtocol {
     var storageClient: NetworkRequestStorageProtocol { get }
     
     var serviceClient: NetworkRequestServiceProtocol { get }
+    
+    var downloaderClient: DownloadUploaderProtocol { get }
 }

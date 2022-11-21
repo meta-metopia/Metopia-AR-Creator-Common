@@ -5,6 +5,8 @@
 //  Created by Qiwei Li on 11/17/22.
 //
 import Foundation
+import RealityKit
+import ARKit
 
 public enum ModelUploadType: UploadTypeProtocol {
     case thumbnail
@@ -58,14 +60,14 @@ public enum ARObjectType: String, Codable, CaseIterable, Identifiable {
     case none
 }
 
-protocol ModelProtocol: Codable {
+public protocol ModelProtocol {
     var name: String { get set }
     var objectType: ARObjectType { get set }
     var menus: [ARMenu]? { get set }
     var content: String? { get set }
 }
 
-public struct ModelCreateDto: ModelProtocol {
+public struct ModelCreateDto: Codable, ModelProtocol {
     public var name: String
     public var uid: UUID
     public var cid: Int
@@ -87,7 +89,7 @@ public struct ModelCreateDto: ModelProtocol {
     }
 }
 
-public struct ModelUpdateDto: ModelProtocol {
+public struct ModelUpdateDto: Codable, ModelProtocol {
     public var name: String
     
     public var thumbnail: String?
@@ -110,7 +112,7 @@ public struct ModelUpdateDto: ModelProtocol {
     }
 }
 
-public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, DownloadableProtocol, UploadableProtocol {
+public struct Model: Codable, Equatable, Identifiable, ModelProtocol, VersionProtocol, DownloadableProtocol, UploadableProtocol {
     public static func == (lhs: Model, rhs: Model) -> Bool {
         lhs.name == rhs.name
     }
@@ -245,5 +247,62 @@ public struct Model: Equatable, Identifiable, ModelProtocol, VersionProtocol, Do
         default:
             return nil
         }
+    }
+    
+    @MainActor
+    /**
+     Load model with entity
+     */
+
+    public func load(service: ClientProtocol) async throws -> ModelWithEntity {
+        _ = try await service.downloaderClient.download(file: self, type: ModelDownloadType.model)
+        
+        let entity = try Entity.load(contentsOf: self.downloadDestination(type: ModelDownloadType.model)!)
+        return ModelWithEntity(id: id, name: name, objectType: objectType, menus: menus, uid: uid, cid: cid, content: content, entity: entity, thumbnail: thumbnail, model: model, version: version)
+    }
+    
+    public static func isModel(from anchor: ARAnchor) -> (Bool, String?) {
+        guard let name = anchor.name else {
+            return (false, nil)
+        }
+        
+        if !name.starts(with: ANCHOR_PREFIX) {
+            return (false, nil)
+        }
+        
+        return (true, Model.Without(prefixOf: name))
+    }
+    
+    public static func Without(prefixOf name: String) -> String {
+        return name.replacingOccurrences(of: ANCHOR_PREFIX, with: "")
+    }
+}
+
+
+public struct ModelWithEntity: Identifiable, ModelProtocol {
+    public var id: Int
+    
+    public var name: String
+    
+    public var objectType: MetopiaARCreatorCommon.ARObjectType
+    
+    public var menus: [MetopiaARCreatorCommon.ARMenu]?
+    
+    public var uid: UUID
+    
+    public var cid: Int
+    
+    public var content: String?
+    
+    public var entity: Entity?
+    
+    public var thumbnail: String
+    
+    public var model: String
+    
+    public var version: Int
+    
+    public func toModel() -> Model {
+        return Model(id: id, name: name, uid: uid, cid: cid, thumbnail: thumbnail, model: model, version: version, objectType: objectType)
     }
 }

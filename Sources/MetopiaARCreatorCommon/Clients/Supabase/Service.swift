@@ -9,7 +9,21 @@ import Foundation
 import Supabase
 
 
+
 public class SupabaseServiceClient: NetworkRequestServiceProtocol {
+    public func fetchWorldMapBy(id: Int) async throws -> WorldMap {
+        let result = try await self.client.database.from(table: .worldMap)
+            .select(columns: "*")
+            .eq(column: "id", value: id)
+            .execute()
+        
+        let worldMap = try? result.decoded(to: [WorldMap].self)
+        guard let foundWorldMap = worldMap?.first else {
+            throw WorldMapError(title: "Cannot find world map.", description: "Cannot find world map with given id \(id)", code: 1)
+        }
+        return foundWorldMap
+    }
+    
     public func fetchWorldMaps(user: User) async throws -> [WorldMap] {
         let result = try await self.client.database
             .from(table: .worldMap)
