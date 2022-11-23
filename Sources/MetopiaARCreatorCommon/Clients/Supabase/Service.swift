@@ -9,6 +9,12 @@ import Alamofire
 import Foundation
 import Supabase
 
+struct NearbyLocationParam: Codable {
+  var latitude: Double
+  var longitude: Double
+  var distance: Double
+}
+
 public class SupabaseServiceClient: NetworkRequestServiceProtocol {
   public func fetchWorldMapBy(id: Int) async throws -> WorldMap {
     let result = try await self.client.database.from(table: .worldMap)
@@ -41,12 +47,6 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
   }
 
   public func editWorldMap(worldMap: WorldMap) async throws {
-    var worldMap = worldMap
-    if let longitude = worldMap.longitude {
-      if let latitude = worldMap.latitude {
-        worldMap.location = "POINT(\(longitude) \(latitude))"
-      }
-    }
     try await self.client.database
       .from(table: .worldMap)
       .update(values: worldMap)
@@ -159,5 +159,11 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
             let task = AF.request(requestURL, method: .delete, headers: ["Authorization": "Bearer \(accessToken)"]).serializingDecodable(WorldMap.self)
     let result = try await task.value
     return result
+  }
+  
+  public func getWorldMapsBy(latitude: Double, longitude: Double, distance: Double ,limit: Int = 1) async throws -> [WorldMap] {
+    let result = try await client.database.rpc(fn: "nearby_worldmaps", params: NearbyLocationParam(latitude: latitude, longitude: longitude, distance: distance)).limit(count: limit).execute()
+    let results = try result.decoded(to: [WorldMap].self)
+    return results
   }
 }

@@ -42,7 +42,6 @@ public protocol WorldMapProtocol: VersionProtocol, Equatable {
   var cloudAnchors: [CloudARAnchor]? { get set }
   var usedModels: [Int]? { get set }
   var preferCloudAnchor: Bool { get set }
-  var location: String? { get set }
 }
 
 public struct WorldMapCreateDto: Codable, WorldMapProtocol {
@@ -63,14 +62,11 @@ public struct WorldMapCreateDto: Codable, WorldMapProtocol {
   public var preferCloudAnchor: Bool
 
   public var version: Int
-  
-  public var location: String?
 
   public init(
     uid: UUID, name: String, file: String? = nil, latitude: Double? = nil, longitude: Double? = nil,
     cloudAnchors: [CloudARAnchor]? = nil, usedModels: [Int]? = nil, preferCloudAnchor: Bool,
-    version: Int,
-    location: String? = nil
+    version: Int
   ) {
     self.uid = uid
     self.name = name
@@ -81,7 +77,6 @@ public struct WorldMapCreateDto: Codable, WorldMapProtocol {
     self.usedModels = usedModels
     self.preferCloudAnchor = preferCloudAnchor
     self.version = version
-    self.location = location
   }
 }
 
@@ -122,13 +117,11 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
      */
   public var usedModels: [Int]?
   public var preferCloudAnchor: Bool
-  public var location: String?
 
   public init(
     id: Int, uid: UUID, name: String, file: String? = nil, latitude: Double? = nil,
     longitude: Double? = nil, version: Int, cloudAnchors: [CloudARAnchor]? = nil,
-    usedModels: [Int]? = nil, preferCloudAnchor: Bool,
-    location: String? = nil
+    usedModels: [Int]? = nil, preferCloudAnchor: Bool
   ) {
     self.id = id
     self.uid = uid
@@ -140,7 +133,6 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     self.cloudAnchors = cloudAnchors
     self.usedModels = usedModels
     self.preferCloudAnchor = preferCloudAnchor
-    self.location = location
   }
 
   public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
@@ -163,7 +155,7 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
       return WorldMapWithARWorldMap(
         id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
         cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
-        version: version, map: nil, location: location)
+        version: version, map: nil)
     }
 
     let data = try await service.downloaderClient.download(
@@ -179,7 +171,7 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     return WorldMapWithARWorldMap(
       id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
       cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
-      version: version, map: worldMap, location: location)
+      version: version, map: worldMap)
   }
 
 }
@@ -206,8 +198,6 @@ public struct WorldMapWithARWorldMap: WorldMapProtocol {
   public var version: Int
 
   public var map: ARWorldMap?
-  
-  public var location: String?
 
   /**
      Download model associated with this used models

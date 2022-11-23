@@ -131,4 +131,12 @@ public protocol NetworkRequestServiceProtocol: NetworkRequestProtocol {
     Delete world map data by world map id
     */
   func deleteWorldMapData(worldMapId: Int) async throws -> WorldMap
+  
+  /**
+   Get world maps by latitude and longitude
+    - parameter distance: Distance in meters
+    - parameter limit: Total number of world maps should return
+    - returns: Nearby world maps
+   */
+  func getWorldMapsBy(latitude: Double, longitude: Double, distance: Double ,limit: Int) async throws -> [WorldMap]
 }
