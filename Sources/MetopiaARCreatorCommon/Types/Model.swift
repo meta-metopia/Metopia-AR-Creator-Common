@@ -1,3 +1,4 @@
+import ARKit
 //
 //  Model.swift
 //
@@ -6,154 +7,159 @@
 //
 import Foundation
 import RealityKit
-import ARKit
 
 public enum ModelUploadType: UploadTypeProtocol {
-    case thumbnail
-    case model
-    
-    public var value: String {
-        switch(self) {
-        case .thumbnail:
-            return "thumbanail"
-        case .model:
-            return "model"
-        }
+  case thumbnail
+  case model
+
+  public var value: String {
+    switch self {
+    case .thumbnail:
+      return "thumbanail"
+    case .model:
+      return "model"
     }
+  }
 }
 
 public enum ModelDownloadType: DownloadTypeProtocol {
-    case thumbnail
-    case model
-    
-    public var value: String {
-        switch(self) {
-        case .thumbnail:
-            return "thumbanail"
-        case .model:
-            return "model"
-        }
+  case thumbnail
+  case model
+
+  public var value: String {
+    switch self {
+    case .thumbnail:
+      return "thumbanail"
+    case .model:
+      return "model"
     }
+  }
 }
 
-/**
- Action type defines the action that the ar model can operate.
- */
+/// Action type defines the action that the ar model can operate.
 public enum ARObjectType: String, Codable, CaseIterable, Identifiable {
-    public var id: Self { self }
-    
-    /**
+  public var id: Self { self }
+
+  /**
      Model will show a  list of ``ARMenu``
      */
-    case menus
-    /**
+  case menus
+  /**
      Model will open a in-app-browser
      */
-    case link
-    /**
+  case link
+  /**
      Model will show an alert
      */
-    case text
-    /**
+  case text
+  /**
      No action applied
      */
-    case none
+  case none
 }
 
 public protocol ModelProtocol {
-    var name: String { get set }
-    var objectType: ARObjectType { get set }
-    var menus: [ARMenu]? { get set }
-    var content: String? { get set }
+  var name: String { get set }
+  var objectType: ARObjectType { get set }
+  var menus: [ARMenu]? { get set }
+  var content: String? { get set }
 }
 
 public struct ModelCreateDto: Codable, ModelProtocol {
-    public var name: String
-    public var uid: UUID
-    public var cid: Int
-    public var thumbnail: String?
-    public var model: String
-    public var menus: [ARMenu]?
-    public var content: String?
-    public var objectType: ARObjectType
-    
-    public init(name: String, uid: UUID, cid: Int, thumbnail: String?, model: String, menus: [ARMenu]?, content: String?, objectType: ARObjectType) {
-        self.name = name
-        self.uid = uid
-        self.cid = cid
-        self.thumbnail = thumbnail
-        self.model = model
-        self.menus = menus
-        self.content = content
-        self.objectType = objectType
-    }
+  public var name: String
+  public var uid: UUID
+  public var cid: Int
+  public var thumbnail: String?
+  public var model: String
+  public var menus: [ARMenu]?
+  public var content: String?
+  public var objectType: ARObjectType
+
+  public init(
+    name: String, uid: UUID, cid: Int, thumbnail: String?, model: String, menus: [ARMenu]?,
+    content: String?, objectType: ARObjectType
+  ) {
+    self.name = name
+    self.uid = uid
+    self.cid = cid
+    self.thumbnail = thumbnail
+    self.model = model
+    self.menus = menus
+    self.content = content
+    self.objectType = objectType
+  }
 }
 
 public struct ModelUpdateDto: Codable, ModelProtocol {
-    public var name: String
-    
-    public var thumbnail: String?
-    
-    public var model: String?
-    
-    public var objectType: ARObjectType
-    
-    public var menus: [ARMenu]?
-    
-    public var content: String?
-    
-    public init(name: String, thumbnail: String? = nil, model: String? = nil, objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil) {
-        self.name = name
-        self.thumbnail = thumbnail
-        self.model = model
-        self.objectType = objectType
-        self.menus = menus
-        self.content = content
-    }
+  public var name: String
+
+  public var thumbnail: String?
+
+  public var model: String?
+
+  public var objectType: ARObjectType
+
+  public var menus: [ARMenu]?
+
+  public var content: String?
+
+  public init(
+    name: String, thumbnail: String? = nil, model: String? = nil, objectType: ARObjectType,
+    menus: [ARMenu]? = nil, content: String? = nil
+  ) {
+    self.name = name
+    self.thumbnail = thumbnail
+    self.model = model
+    self.objectType = objectType
+    self.menus = menus
+    self.content = content
+  }
 }
 
-public struct Model: Codable, Equatable, Identifiable, ModelProtocol, VersionProtocol, DownloadableProtocol, UploadableProtocol {
-    public static func == (lhs: Model, rhs: Model) -> Bool {
-        lhs.name == rhs.name
-    }
-    
-    public var id: Int
-    public var name: String
-    /**
+public struct Model: Codable, Equatable, Identifiable, ModelProtocol, VersionProtocol,
+  DownloadableProtocol, UploadableProtocol
+{
+  public static func == (lhs: Model, rhs: Model) -> Bool {
+    lhs.name == rhs.name
+  }
+
+  public var id: Int
+  public var name: String
+  /**
      Owner id for the model
      */
-    public var uid: UUID
-    /**
+  public var uid: UUID
+  /**
      Category id for the model
      */
-    public var cid: Int
-    /**
+  public var cid: Int
+  /**
      Thumbnail path
      */
-    public var thumbnail: String
-    /**
+  public var thumbnail: String
+  /**
      Model path
      */
-    public var model: String
-    /**
+  public var model: String
+  /**
      Version of the model
      */
-    public var version: Int
-    /**
+  public var version: Int
+  /**
      Model's action type
      */
-    public var objectType: ARObjectType
-    /**
+  public var objectType: ARObjectType
+  /**
      ARMenus if the ``actionType`` is set to ``ActionType.menus``
      */
-    public var menus: [ARMenu]?
-    
-    /**
+  public var menus: [ARMenu]?
+
+  /**
      Model's content if ``actionType`` is not set to ``actionType.none`` or ``ActionType.menus``
      */
-    public var content: String?
-    
-    /**
+  public var content: String?
+
+  /**
      Create a model
      - parameter id: Model ID
      - parameter name: Model Name
@@ -165,144 +171,150 @@ public struct Model: Codable, Equatable, Identifiable, ModelProtocol, VersionPro
      - parameter actionType: Model onclick action type
      - parameter content: Model's content
      */
-    public init(id: Int, name: String, uid: UUID, cid: Int, thumbnail: String, model: String, version: Int, objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil) {
-        self.id = id
-        self.name = name
-        self.uid = uid
-        self.cid = cid
-        self.thumbnail = thumbnail
-        self.model = model
-        self.version = version
-        self.objectType = objectType
-        self.menus = menus
-        self.content = content
-    }
-    
-    /**
+  public init(
+    id: Int, name: String, uid: UUID, cid: Int, thumbnail: String, model: String, version: Int,
+    objectType: ARObjectType, menus: [ARMenu]? = nil, content: String? = nil
+  ) {
+    self.id = id
+    self.name = name
+    self.uid = uid
+    self.cid = cid
+    self.thumbnail = thumbnail
+    self.model = model
+    self.version = version
+    self.objectType = objectType
+    self.menus = menus
+    self.content = content
+  }
+
+  /**
      Model directory
      */
-    public var modelDirectory: URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        var dir = paths[0]
-        dir.appendPathComponent("models")
-        return dir
-    }
-    
-    /**
+  public var modelDirectory: URL {
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    var dir = paths[0]
+    dir.appendPathComponent("models")
+    return dir
+  }
+
+  /**
      Model directory
      */
-    public var thumbnailDirectory: URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        var dir = paths[0]
-        dir.appendPathComponent("thumbnail")
-        return dir
+  public var thumbnailDirectory: URL {
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    var dir = paths[0]
+    dir.appendPathComponent("thumbnail")
+    return dir
+  }
+
+  public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
+    switch type.value {
+    case ModelDownloadType.model.value:
+      var modelDir = modelDirectory
+      modelDir.appendPathComponent("\(id)_version_\(version).usdz")
+      return modelDir
+    case ModelDownloadType.thumbnail.value:
+      var thumbnail = thumbnailDirectory
+      let thumbnailExt = URL(string: self.thumbnail)!.pathExtension
+      thumbnail.appendPathComponent("\(id)_version_\(version).\(thumbnailExt)")
+      return thumbnail
+    default:
+      return nil
     }
-    
-    public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
-        switch (type.value) {
-        case ModelDownloadType.model.value:
-            var modelDir = modelDirectory
-            modelDir.appendPathComponent("\(id)_version_\(version).usdz")
-            return modelDir
-        case ModelDownloadType.thumbnail.value:
-            var thumbnail = thumbnailDirectory
-            let thumbnailExt = URL(string: self.thumbnail)!.pathExtension
-            thumbnail.appendPathComponent("\(id)_version_\(version).\(thumbnailExt)")
-            return thumbnail
-        default:
-            return nil
-        }
+  }
+
+  public func downloadSource(type: DownloadTypeProtocol) -> URL? {
+    switch type.value {
+    case ModelDownloadType.model.value:
+      return URL(string: model)
+    case ModelDownloadType.thumbnail.value:
+      return URL(string: thumbnail)
+    default:
+      return nil
     }
-    
-    
-    public func downloadSource(type: DownloadTypeProtocol) -> URL? {
-        switch(type.value) {
-        case ModelDownloadType.model.value:
-            return URL(string: model)
-        case ModelDownloadType.thumbnail.value:
-            return URL(string: thumbnail)
-        default:
-            return nil
-        }
+  }
+
+  public func uploadDestination(type: UploadTypeProtocol) -> URL? {
+    let baseURL = URL(string: "uploads/\(uid)")
+    switch type.value {
+    case ModelUploadType.model.value:
+      return baseURL?.appendingPathComponent("model/\(self.id).usdz")
+    case ModelUploadType.thumbnail.value:
+      return baseURL?.appendingPathComponent("thumbnail/\(self.id).png")
+    default:
+      return nil
     }
-    
-    public func uploadDestination(type: UploadTypeProtocol) -> URL? {
-        let baseURL = URL(string: "uploads/\(uid)")
-        switch (type.value) {
-        case ModelUploadType.model.value:
-            return baseURL?.appendingPathComponent("model/\(self.id).usdz")
-        case ModelUploadType.thumbnail.value:
-            return baseURL?.appendingPathComponent("thumbnail/\(self.id).png")
-        default:
-            return nil
-        }
+  }
+
+  public func uploadFile(type: UploadTypeProtocol, data: Data) -> File? {
+    switch type.value {
+    case ModelUploadType.model.value:
+      return File(name: name, data: data, fileName: "\(id).usdz", contentType: nil)
+    case ModelUploadType.thumbnail.value:
+      return File(name: name, data: data, fileName: "\(id).png", contentType: nil)
+    default:
+      return nil
     }
-    
-    public func uploadFile(type: UploadTypeProtocol, data: Data) -> File? {
-        switch (type.value) {
-        case ModelUploadType.model.value:
-            return File(name: name, data: data, fileName: "\(id).usdz", contentType: nil)
-        case ModelUploadType.thumbnail.value:
-            return File(name: name, data: data, fileName: "\(id).png", contentType: nil)
-        default:
-            return nil
-        }
-    }
-    
-    @MainActor
-    /**
+  }
+
+  @MainActor
+  /**
      Load model with entity
      */
 
-    public func load(service: ClientProtocol) async throws -> ModelWithEntity {
-        _ = try await service.downloaderClient.download(file: self, type: ModelDownloadType.model)
-        
-        let entity = try Entity.load(contentsOf: self.downloadDestination(type: ModelDownloadType.model)!)
-        return ModelWithEntity(id: id, name: name, objectType: objectType, menus: menus, uid: uid, cid: cid, content: content, entity: entity, thumbnail: thumbnail, model: model, version: version)
+  public func load(service: ClientProtocol) async throws -> ModelWithEntity {
+    _ = try await service.downloaderClient.download(file: self, type: ModelDownloadType.model)
+
+    let entity = try Entity.load(
+      contentsOf: self.downloadDestination(type: ModelDownloadType.model)!)
+    return ModelWithEntity(
+      id: id, name: name, objectType: objectType, menus: menus, uid: uid, cid: cid,
+      content: content, entity: entity, thumbnail: thumbnail, model: model, version: version)
+  }
+
+  public static func isModel(from anchor: ARAnchor) -> (Bool, String?) {
+    guard let name = anchor.name else {
+      return (false, nil)
     }
-    
-    public static func isModel(from anchor: ARAnchor) -> (Bool, String?) {
-        guard let name = anchor.name else {
-            return (false, nil)
-        }
-        
-        if !name.starts(with: ANCHOR_PREFIX) {
-            return (false, nil)
-        }
-        
-        return (true, Model.Without(prefixOf: name))
+
+    if !name.starts(with: ANCHOR_PREFIX) {
+      return (false, nil)
     }
-    
-    public static func Without(prefixOf name: String) -> String {
-        return name.replacingOccurrences(of: ANCHOR_PREFIX, with: "")
-    }
+
+    return (true, Model.Without(prefixOf: name))
+  }
+
+  public static func Without(prefixOf name: String) -> String {
+    return name.replacingOccurrences(of: ANCHOR_PREFIX, with: "")
+  }
 }
 
-
 public struct ModelWithEntity: Identifiable, ModelProtocol {
-    public var id: Int
-    
-    public var name: String
-    
-    public var objectType: MetopiaARCreatorCommon.ARObjectType
-    
-    public var menus: [MetopiaARCreatorCommon.ARMenu]?
-    
-    public var uid: UUID
-    
-    public var cid: Int
-    
-    public var content: String?
-    
-    public var entity: Entity?
-    
-    public var thumbnail: String
-    
-    public var model: String
-    
-    public var version: Int
-    
-    public func toModel() -> Model {
-        return Model(id: id, name: name, uid: uid, cid: cid, thumbnail: thumbnail, model: model, version: version, objectType: objectType)
-    }
+  public var id: Int
+
+  public var name: String
+
+  public var objectType: MetopiaARCreatorCommon.ARObjectType
+
+  public var menus: [MetopiaARCreatorCommon.ARMenu]?
+
+  public var uid: UUID
+
+  public var cid: Int
+
+  public var content: String?
+
+  public var entity: Entity?
+
+  public var thumbnail: String
+
+  public var model: String
+
+  public var version: Int
+
+  public func toModel() -> Model {
+    return Model(
+      id: id, name: name, uid: uid, cid: cid, thumbnail: thumbnail, model: model, version: version,
+      objectType: objectType)
+  }
 }
