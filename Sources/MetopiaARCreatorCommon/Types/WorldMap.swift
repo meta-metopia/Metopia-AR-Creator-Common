@@ -13,22 +13,22 @@ public typealias FindModelByName = (Int) async -> Model?
 
 public enum WorldMapUploadType: UploadTypeProtocol {
   case worldmap
-
+  
   public var value: String {
     switch self {
-    case .worldmap:
-      return "worldmap"
+      case .worldmap:
+        return "worldmap"
     }
   }
 }
 
 public enum WorldMapDownloadType: DownloadTypeProtocol {
   case worldmap
-
+  
   public var value: String {
     switch self {
-    case .worldmap:
-      return "worldmap"
+      case .worldmap:
+        return "worldmap"
     }
   }
 }
@@ -46,23 +46,23 @@ public protocol WorldMapProtocol: VersionProtocol, Equatable {
 
 public struct WorldMapCreateDto: Codable, WorldMapProtocol {
   public var uid: UUID
-
+  
   public var name: String
-
+  
   public var file: String?
-
+  
   public var latitude: Double?
-
+  
   public var longitude: Double?
-
+  
   public var cloudAnchors: [CloudARAnchor]?
-
+  
   public var usedModels: [Int]?
-
+  
   public var preferCloudAnchor: Bool
-
+  
   public var version: Int
-
+  
   public init(
     uid: UUID, name: String, file: String? = nil, latitude: Double? = nil, longitude: Double? = nil,
     cloudAnchors: [CloudARAnchor]? = nil, usedModels: [Int]? = nil, preferCloudAnchor: Bool,
@@ -81,7 +81,7 @@ public struct WorldMapCreateDto: Codable, WorldMapProtocol {
 }
 
 public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadableProtocol,
-  UploadableProtocol
+                        UploadableProtocol
 {
   public func downloadSource(type: DownloadTypeProtocol) -> URL? {
     guard let filename = file else {
@@ -89,21 +89,21 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     }
     return URL(string: filename)
   }
-
+  
   /**
-     Map directory
-     */
+   Map directory
+   */
   private var mapDirectory: URL {
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     var dir = paths[0]
     dir.appendPathComponent("maps")
     return dir
   }
-
+  
   public static func == (lhs: WorldMap, rhs: WorldMap) -> Bool {
     lhs.id == rhs.id
   }
-
+  
   public var id: Int
   public var uid: UUID
   public var name: String
@@ -113,11 +113,11 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
   public var version: Int
   public var cloudAnchors: [CloudARAnchor]?
   /**
-     List of models' id used in the worldMap
-     */
+   List of models' id used in the worldMap
+   */
   public var usedModels: [Int]?
   public var preferCloudAnchor: Bool
-
+  
   public init(
     id: Int, uid: UUID, name: String, file: String? = nil, latitude: Double? = nil,
     longitude: Double? = nil, version: Int, cloudAnchors: [CloudARAnchor]? = nil,
@@ -134,30 +134,37 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     self.usedModels = usedModels
     self.preferCloudAnchor = preferCloudAnchor
   }
-
+  
   public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
     var modelDir = mapDirectory
     modelDir.appendPathComponent("\(id)_version_\(version).worldmap")
     return modelDir
   }
-
+  
   public func uploadDestination(type: UploadTypeProtocol) -> URL? {
     return URL(string: "uploads/\(uid)/worldmap/\(id).worldmap")
   }
-
+  
   public func uploadFile(type: UploadTypeProtocol, data: Data) -> File? {
     return File(name: name, data: data, fileName: "\(id).worldmap", contentType: nil)
   }
-
+  
   public func load(service: ClientProtocol) async throws -> WorldMapWithARWorldMap {
+    let mapWithoutARWorldMap = WorldMapWithARWorldMap(
+      id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
+      cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
+      version: version, map: nil)
+    
+    if preferCloudAnchor {
+      // if prefer cloud anchor, then return map without ar world map
+      return mapWithoutARWorldMap
+    }
+    
     guard let _ = downloadSource(type: WorldMapDownloadType.worldmap) else {
       // if map is empty, then return an ar map with empty map data
-      return WorldMapWithARWorldMap(
-        id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
-        cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
-        version: version, map: nil)
+      return mapWithoutARWorldMap
     }
-
+    
     let data = try await service.downloaderClient.download(
       file: self, type: WorldMapDownloadType.worldmap)
     guard let data = data else {
@@ -173,48 +180,48 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
       cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
       version: version, map: worldMap)
   }
-
+  
 }
 
 public struct WorldMapWithARWorldMap: WorldMapProtocol {
   public var id: Int
-
+  
   public var uid: UUID
-
+  
   public var name: String
-
+  
   public var file: String?
-
+  
   public var latitude: Double?
-
+  
   public var longitude: Double?
-
+  
   public var cloudAnchors: [MetopiaARCreatorCommon.CloudARAnchor]?
-
+  
   public var usedModels: [Int]?
-
+  
   public var preferCloudAnchor: Bool
-
+  
   public var version: Int
-
+  
   public var map: ARWorldMap?
-
+  
   /**
-     Download model associated with this used models
-     - returns List of used models
-     */
+   Download model associated with this used models
+   - returns List of used models
+   */
   public func downloadModels(client: ClientProtocol, findModelByName: @escaping FindModelByName)
-    async -> [ModelWithEntity]
+  async -> [ModelWithEntity]
   {
     var usedModels: [ModelWithEntity] = []
-
+    
     guard let models = self.usedModels else {
       return usedModels
     }
-
+    
     for modelId in models {
       let foundModel = await findModelByName(modelId)
-
+      
       if let foundModel = foundModel {
         let modelWithEntity = try! await foundModel.load(service: client)
         usedModels.append(modelWithEntity)
@@ -222,5 +229,5 @@ public struct WorldMapWithARWorldMap: WorldMapProtocol {
     }
     return usedModels
   }
-
+  
 }
