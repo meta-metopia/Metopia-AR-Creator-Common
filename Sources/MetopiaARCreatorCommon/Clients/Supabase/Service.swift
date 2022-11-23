@@ -41,6 +41,12 @@ public class SupabaseServiceClient: NetworkRequestServiceProtocol {
   }
 
   public func editWorldMap(worldMap: WorldMap) async throws {
+    var worldMap = worldMap
+    if let longitude = worldMap.longitude {
+      if let latitude = worldMap.latitude {
+        worldMap.location = "POINT(\(longitude) \(latitude))"
+      }
+    }
     try await self.client.database
       .from(table: .worldMap)
       .update(values: worldMap)
