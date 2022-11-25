@@ -33,6 +33,25 @@ public enum WorldMapDownloadType: DownloadTypeProtocol {
   }
 }
 
+public enum PositioningEngineType: String, Codable {
+  /**
+   System default position engine. Different on android and ios
+   */
+  case defaultEngine = "default"
+  /**
+   Use Google Cloud Anchor for positioning
+   */
+  case cloudAnchor = "cloud-anchor"
+  /**
+   Use Azure spaicial anchor for positioning
+   */
+  case spacialAnchor = "spacial-anchor"
+  /**
+   Use Google Cloud Geospatial Anchor for positioning
+   */
+  case geospatialAnchor = "geospatial-anchor"
+}
+
 public protocol WorldMapProtocol: VersionProtocol, Equatable {
   var uid: UUID { get set }
   var name: String { get set }
@@ -41,7 +60,7 @@ public protocol WorldMapProtocol: VersionProtocol, Equatable {
   var longitude: Double? { get set }
   var cloudAnchors: [CloudARAnchor]? { get set }
   var usedModels: [Int]? { get set }
-  var preferCloudAnchor: Bool { get set }
+  var positioningEngine: PositioningEngineType { get set }
 }
 
 public struct WorldMapCreateDto: Codable, WorldMapProtocol {
@@ -63,21 +82,9 @@ public struct WorldMapCreateDto: Codable, WorldMapProtocol {
   
   public var version: Int
   
-  public init(
-    uid: UUID, name: String, file: String? = nil, latitude: Double? = nil, longitude: Double? = nil,
-    cloudAnchors: [CloudARAnchor]? = nil, usedModels: [Int]? = nil, preferCloudAnchor: Bool,
-    version: Int
-  ) {
-    self.uid = uid
-    self.name = name
-    self.file = file
-    self.latitude = latitude
-    self.longitude = longitude
-    self.cloudAnchors = cloudAnchors
-    self.usedModels = usedModels
-    self.preferCloudAnchor = preferCloudAnchor
-    self.version = version
-  }
+  public var positioningEngine: PositioningEngineType
+  
+  
 }
 
 public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadableProtocol,
@@ -89,6 +96,8 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     }
     return URL(string: filename)
   }
+  
+  
   
   /**
    Map directory
@@ -116,12 +125,12 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
    List of models' id used in the worldMap
    */
   public var usedModels: [Int]?
-  public var preferCloudAnchor: Bool
+  public var positioningEngine: PositioningEngineType
   
   public init(
     id: Int, uid: UUID, name: String, file: String? = nil, latitude: Double? = nil,
     longitude: Double? = nil, version: Int, cloudAnchors: [CloudARAnchor]? = nil,
-    usedModels: [Int]? = nil, preferCloudAnchor: Bool
+    usedModels: [Int]? = nil, positioningEngine: PositioningEngineType
   ) {
     self.id = id
     self.uid = uid
@@ -132,7 +141,7 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     self.version = version
     self.cloudAnchors = cloudAnchors
     self.usedModels = usedModels
-    self.preferCloudAnchor = preferCloudAnchor
+    self.positioningEngine = positioningEngine
   }
   
   public func downloadDestination(type: DownloadTypeProtocol) -> URL? {
@@ -152,10 +161,10 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
   public func load(service: ClientProtocol) async throws -> WorldMapWithARWorldMap {
     let mapWithoutARWorldMap = WorldMapWithARWorldMap(
       id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
-      cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
-      version: version, map: nil)
+      cloudAnchors: cloudAnchors, usedModels: usedModels,
+      version: version, map: nil, positioningEngine: positioningEngine)
     
-    if preferCloudAnchor {
+    if positioningEngine != .defaultEngine {
       // if prefer cloud anchor, then return map without ar world map
       return mapWithoutARWorldMap
     }
@@ -177,8 +186,8 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     }
     return WorldMapWithARWorldMap(
       id: id, uid: uid, name: name, file: file, latitude: latitude, longitude: longitude,
-      cloudAnchors: cloudAnchors, usedModels: usedModels, preferCloudAnchor: preferCloudAnchor,
-      version: version, map: worldMap)
+      cloudAnchors: cloudAnchors, usedModels: usedModels,
+      version: version, map: worldMap, positioningEngine: positioningEngine)
   }
   
 }
@@ -200,11 +209,11 @@ public struct WorldMapWithARWorldMap: WorldMapProtocol {
   
   public var usedModels: [Int]?
   
-  public var preferCloudAnchor: Bool
-  
   public var version: Int
   
   public var map: ARWorldMap?
+  
+  public var positioningEngine: PositioningEngineType
   
   /**
    Download model associated with this used models
