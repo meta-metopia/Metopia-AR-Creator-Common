@@ -52,8 +52,7 @@ public enum PositioningEngineType: String, Codable, CaseIterable {
   case geospatialAnchor = "geospatial-anchor"
 }
 
-public protocol WorldMapProtocol: VersionProtocol, Equatable {
-  var uid: UUID { get set }
+public protocol WorldMapProtocol: Equatable {
   var name: String { get set }
   var file: String? { get set }
   var latitude: Double? { get set }
@@ -64,8 +63,6 @@ public protocol WorldMapProtocol: VersionProtocol, Equatable {
 }
 
 public struct WorldMapCreateDto: Codable, WorldMapProtocol {
-  public var uid: UUID
-  
   public var name: String
   
   public var file: String?
@@ -78,16 +75,17 @@ public struct WorldMapCreateDto: Codable, WorldMapProtocol {
   
   public var usedModels: [Int]?
   
-  public var preferCloudAnchor: Bool
-  
-  public var version: Int
-  
   public var positioningEngine: PositioningEngineType
   
   
+  public init(name: String, positioningEngine: PositioningEngineType) {
+    self.name = name
+    self.positioningEngine = positioningEngine
+  }
+  
 }
 
-public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadableProtocol,
+public struct WorldMap: Codable, Identifiable, VersionProtocol, WorldMapProtocol, DownloadableProtocol,
                         UploadableProtocol
 {
   public func downloadSource(type: DownloadTypeProtocol) -> URL? {
@@ -96,8 +94,6 @@ public struct WorldMap: Codable, Identifiable, WorldMapProtocol, DownloadablePro
     }
     return URL(string: filename)
   }
-  
-  
   
   /**
    Map directory
