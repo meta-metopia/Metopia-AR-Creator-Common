@@ -33,7 +33,7 @@ public enum WorldMapDownloadType: DownloadTypeProtocol {
   }
 }
 
-public enum PositioningEngineType: String, Codable {
+public enum PositioningEngineType: String, Codable, CaseIterable {
   /**
    System default position engine. Different on android and ios
    */
