@@ -17,7 +17,7 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/supabase/supabase-swift.git", branch: "master"),
+    .package(url: "https://github.com/supabase/supabase-swift.git", .upToNextMajor(from: "0.0.0")),
     .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
   ],
   targets: [
