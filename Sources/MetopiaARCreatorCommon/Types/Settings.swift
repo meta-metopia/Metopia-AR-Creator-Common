@@ -19,7 +19,7 @@ public enum ARSettings: String, CaseIterable {
   /**
    Icon for settings
    */
-  var icon: String {
+  public var icon: String {
     switch self {
       case .personSegmentation:
         return "person.crop.rectangle.fill"
