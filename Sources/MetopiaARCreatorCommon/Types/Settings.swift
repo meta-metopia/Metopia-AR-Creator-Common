@@ -31,4 +31,17 @@ public enum ARSettings: String, CaseIterable {
         return "eyeglasses"
     }
   }
+  
+  public var description: String {
+    switch self {
+      case .personSegmentation:
+        return "Enable excluding people from in front of AR Objects"
+      case .objectOcclusion:
+        return "Enable excluding objects from in front of AR Objects "
+      case .ultraHD:
+        return "Enable 4k Resolution"
+      case .debug:
+        return "Enable debug mode! Warning: this mode is not stable yet and may crash the app!!!!"
+    }
+  }
 }
