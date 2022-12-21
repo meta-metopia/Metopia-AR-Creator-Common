@@ -15,6 +15,7 @@ public enum ARSettings: String, CaseIterable {
   case objectOcclusion = "Object occlusion"
   case ultraHD = "4k Resolution"
   case debug = "Debug Mode"
+  case environmentLighting = "Environment Lighting"
   
   /**
    Icon for settings
@@ -29,6 +30,8 @@ public enum ARSettings: String, CaseIterable {
         return "4k.tv.fill"
       case .debug:
         return "eyeglasses"
+      case .environmentLighting:
+        return "rays"
     }
   }
   
@@ -40,6 +43,8 @@ public enum ARSettings: String, CaseIterable {
         return "Enable excluding objects from in front of AR Objects "
       case .ultraHD:
         return "Enable 4k Resolution"
+      case .environmentLighting:
+        return "Enable Environment Lighting"
       case .debug:
         return "Enable debug mode! Warning: this mode is not stable yet and may crash the app!!!!"
     }
